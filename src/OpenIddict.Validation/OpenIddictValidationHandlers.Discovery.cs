@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Extensions;
 
 namespace OpenIddict.Validation;
 
@@ -200,6 +201,18 @@ public static partial class OpenIddictValidationHandlers
                         description: SR.GetResourceString(SR.ID2097),
                         uri: SR.FormatID8000(SR.ID2097));
 
+                    return default;
+                }
+
+                //Check if issuer validation is disabled
+                if (!context.Options.TokenValidationParameters.ValidateIssuer)
+                {
+                    return default;
+                }
+
+                // Try validate issuer with one of the specified valid issuers
+                if (OpenIddictHelpers.ValidIssuer(uri, context.Options.TokenValidationParameters.ValidIssuers))
+                {
                     return default;
                 }
 

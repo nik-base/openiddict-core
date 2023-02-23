@@ -406,6 +406,53 @@ internal static class OpenIddictHelpers
         return new ClaimsPrincipal(identity);
     }
 
+    /// <summary>
+    /// Checks if issuer exists in list of specified valid issuers
+    /// </summary>
+    /// <param name="issuer">Issuer to check</param>
+    /// <param name="validIssuers">List of valid issuers</param>
+    /// <returns>Boolean indicating if issuer is valid</returns>
+    public static bool ValidIssuer(Uri? issuer, IEnumerable<string> validIssuers)
+    {
+        // Do not validate empty issuer
+        if (issuer == null)
+        {
+            return false;
+        }
+        if (validIssuers == null || !validIssuers.Any())
+        {
+            return false;
+        }
+        var isValid = ValidateIssuer(issuer, validIssuers);
+        return isValid;
+    }
+
+    /// <summary>
+    ///  Checks if issuer uri exists in list of specified valid issuers
+    /// </summary>
+    /// <param name="issuer">Issuer uri to check</param>
+    /// <param name="validIssuers">List of valid issuers</param>
+    /// <returns>Boolean indicating if issuer uri is valid</returns>
+    private static bool ValidateIssuer(Uri? issuer, IEnumerable<string> validIssuers)
+    {
+        foreach (var validIssuer in validIssuers)
+        {
+            if (string.IsNullOrWhiteSpace(validIssuer))
+            {
+                continue;
+            }
+            if (!Uri.TryCreate(validIssuer, UriKind.Absolute, out Uri? uri))
+            {
+                continue;
+            }
+            if (issuer == uri)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 #if SUPPORTS_ECDSA
     /// <summary>
     /// Creates a new <see cref="ECDsa"/> key.
